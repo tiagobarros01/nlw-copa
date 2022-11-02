@@ -11,7 +11,7 @@ const Document = () => {
           rel="stylesheet"
         />
       </Head>
-      <body>
+      <body className="bg-gray-900 bg-app bg-no-repeat bg-cover">
         <Main />
         <NextScript />
       </body>
