@@ -1,5 +1,27 @@
-export default function Home() {
+import type { GetServerSideProps } from "next"
+import { FunctionComponent } from "react"
+
+type HomeProps = {
+  count: number,
+}
+
+const Home: FunctionComponent<HomeProps> = (props) => {
   return (
-    <h1>Hello World</h1>
+    <h1>{props.count}</h1>
   )
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const response = await fetch('http://localhost:3333/pools/count');
+  const data = await response.json()
+
+  console.log(data)
+
+  return {
+    props: {
+      count: data.count,
+    }
+  }
+}
+
+export default Home;
