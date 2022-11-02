@@ -6,7 +6,7 @@ type HomeProps = {
 };
 
 const Home: FunctionComponent<HomeProps> = (props) => {
-  return <h1>{props.count}</h1>;
+  return <h1 className="text-violet-200 text-2xl">{props.count}</h1>;
 };
 
 export const getServerSideProps: GetServerSideProps = async () => {
