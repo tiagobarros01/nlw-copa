@@ -1,6 +1,6 @@
 import type { GetServerSideProps } from 'next';
 import Image from 'next/image';
-import type { FunctionComponent } from 'react';
+import { FormEvent, FunctionComponent, useState } from 'react';
 
 import appPreviewImg from '../assets/app-nlw-copa-preview.png';
 import avatarExampleImg from '../assets/avatars-example.png';
@@ -14,7 +14,31 @@ type HomeProps = {
   userCount: number;
 };
 
-const Home: FunctionComponent<HomeProps> = ({poolCount, guessCount, userCount}) => {
+const Home: FunctionComponent<HomeProps> = (props) => {
+  const { poolCount, guessCount, userCount } = props;
+
+  const [input, setInput] = useState('');
+
+  async function createPool(event: FormEvent) {
+    event.preventDefault();
+
+    try {
+      const { data } = await api.post('pools', {
+        title: input,
+      });
+
+      await navigator.clipboard.writeText(data.uniqueCode)
+
+      alert('Bolão criado com sucesso! O código foi copiado para a área de transferência.');
+
+      setInput('')
+    } catch (err) {
+      alert('Falha ao criar o bolão, tente novamente.');
+
+      console.log(err);
+    }
+  }
+
   return (
     <div className="max-w-[1124px] h-screen mx-auto grid grid-cols-2 items-center gap-28">
       <main>
@@ -28,17 +52,19 @@ const Home: FunctionComponent<HomeProps> = ({poolCount, guessCount, userCount}) 
           <Image src={avatarExampleImg} alt="" quality={100} />
 
           <strong className="text-gray-100 text-xl">
-            <span className="text-ignite-500">+{userCount}</span> pessoas já estão
-            usando
+            <span className="text-ignite-500">+{userCount}</span> pessoas já
+            estão usando
           </strong>
         </div>
 
-        <form className="mt-10 flex gap-2" action="">
+        <form onSubmit={createPool} className="mt-10 flex gap-2" action="">
           <input
             required
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
             type="text"
             placeholder="Qual nome do seu bolão?"
-            className="flex-1 px-6 py-4 rounded bg-gray-800 border border-gray-600 text-sm"
+            className="flex-1 px-6 py-4 rounded bg-gray-800 border border-gray-600 text-sm text-gray-100"
           />
           <button
             className="bg-yellow-500 px-6 py-4 rounded uppercase text-gray-900 font-bold text-sm hover:bg-yellow-700"
@@ -85,10 +111,10 @@ const Home: FunctionComponent<HomeProps> = ({poolCount, guessCount, userCount}) 
 
 export const getServerSideProps: GetServerSideProps = async () => {
   const [poolsData, guessData, userData] = await Promise.all([
-    api.get<{count: number}>('/pools/count'),
-    api.get<{count: number}>('/guesses/count'),
-    api.get<{count: number}>('/users/count'),
-  ])
+    api.get<{ count: number }>('/pools/count'),
+    api.get<{ count: number }>('/guesses/count'),
+    api.get<{ count: number }>('/users/count'),
+  ]);
 
   return {
     props: {
