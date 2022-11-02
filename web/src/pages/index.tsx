@@ -6,12 +6,15 @@ import appPreviewImg from '../assets/app-nlw-copa-preview.png';
 import avatarExampleImg from '../assets/avatars-example.png';
 import logoImg from '../assets/logo.svg';
 import iconCheckImg from '../assets/icon-check.svg';
+import { api } from '../services/axios';
 
-// type HomeProps = {
-//   count: number;
-// };
+type HomeProps = {
+  poolCount: number;
+  guessCount: number;
+  userCount: number;
+};
 
-const Home: FunctionComponent = () => {
+const Home: FunctionComponent<HomeProps> = ({poolCount, guessCount, userCount}) => {
   return (
     <div className="max-w-[1124px] h-screen mx-auto grid grid-cols-2 items-center gap-28">
       <main>
@@ -25,7 +28,7 @@ const Home: FunctionComponent = () => {
           <Image src={avatarExampleImg} alt="" quality={100} />
 
           <strong className="text-gray-100 text-xl">
-            <span className="text-ignite-500">+12.592</span> pessoas já estão
+            <span className="text-ignite-500">+{userCount}</span> pessoas já estão
             usando
           </strong>
         </div>
@@ -33,7 +36,7 @@ const Home: FunctionComponent = () => {
         <form className="mt-10 flex gap-2" action="">
           <input
             required
-            type="text" 
+            type="text"
             placeholder="Qual nome do seu bolão?"
             className="flex-1 px-6 py-4 rounded bg-gray-800 border border-gray-600 text-sm"
           />
@@ -43,7 +46,7 @@ const Home: FunctionComponent = () => {
           >
             Criar meu bolão
           </button>
-        </form> 
+        </form>
 
         <p className="mt-4 text-sm text-gray-300 leading-relaxed">
           Após criar seu bolão, você receberá um código único que poderá usar
@@ -54,9 +57,9 @@ const Home: FunctionComponent = () => {
           <div className="flex items-center gap-6">
             <Image src={iconCheckImg} alt="" quality={100} />
             <div className="flex flex-col">
-              <span className="font-bold text-2xl">+2.034</span>
+              <span className="font-bold text-2xl">+{poolCount}</span>
               <span>Bolões criados</span>
-            </div> 
+            </div>
           </div>
 
           <div className="w-px h-14 bg-gray-600" />
@@ -64,7 +67,7 @@ const Home: FunctionComponent = () => {
           <div className="flex items-center gap-6">
             <Image src={iconCheckImg} alt="" quality={100} />
             <div className="flex flex-col">
-              <span className="font-bold text-2xl">+192.847</span>
+              <span className="font-bold text-2xl">+{guessCount}</span>
               <span>Palpites enviados</span>
             </div>
           </div>
@@ -80,15 +83,20 @@ const Home: FunctionComponent = () => {
   );
 };
 
-// export const getServerSideProps: GetServerSideProps = async () => {
-//   const response = await fetch('http://localhost:3333/pools/count');
-//   const data = await response.json();
+export const getServerSideProps: GetServerSideProps = async () => {
+  const [poolsData, guessData, userData] = await Promise.all([
+    api.get<{count: number}>('/pools/count'),
+    api.get<{count: number}>('/guesses/count'),
+    api.get<{count: number}>('/users/count'),
+  ])
 
-//   return {
-//     props: {
-//       count: data.count,
-//     },
-//   };
-// };
+  return {
+    props: {
+      poolCount: poolsData.data.count,
+      guessCount: guessData.data.count,
+      userCount: userData.data.count,
+    },
+  };
+};
 
 export default Home;
